@@ -30,47 +30,29 @@ module.exports = function(eleventyConfig, options = {}) {
     ...options
   };
 
-  // Add the plugin
-  eleventyConfig.addPlugin(function(eleventyConfig) {
-    // Generate llms.txt after the build is complete
-    eleventyConfig.on('eleventy.after', async ({ dir, results }) => {
-      const outputDir = dir.output || '_site';
-      const outputPath = path.join(outputDir, pluginOptions.outputPath);
-      
-      // Ensure the directory exists
-      const outputDirPath = path.dirname(outputPath);
-      if (!fs.existsSync(outputDirPath)) {
-        fs.mkdirSync(outputDirPath, { recursive: true });
-      }
-      
-      // Get all collections
-      const collections = {};
-      
-      // Get the requested collections
-      pluginOptions.collections.forEach(collectionName => {
-        try {
-          collections[collectionName] = eleventyConfig.collections.getAll().filter(item => {
-            if (collectionName === 'all') return true;
-            return item.data.collections && 
-                  Array.isArray(item.data.collections) && 
-                  item.data.collections.includes(collectionName);
-          });
-        } catch (error) {
-          console.warn(`⚠️ Collection '${collectionName}' not found`);
-          collections[collectionName] = [];
-        }
-      });
-      
-      // Generate the llms.txt content
-      const llmsTxtContent = generateLlmsTxt(collections, pluginOptions);
-      
-      // Write to file
-      try {
-        fs.writeFileSync(outputPath, llmsTxtContent);
-        console.log(`✅ Generated ${pluginOptions.outputPath}`);
-      } catch (error) {
-        console.error(`❌ Error generating ${pluginOptions.outputPath}:`, error);
-      }
+
+  const collectionData = {};
+  for (const t of pluginOptions.collections) {
+    eleventyConfig.addCollection(t, function (collectionApi) {
+      collectionData[t] = (t=="all") ? collectionApi.getAll() : collectionApi.getFilteredByTag(t);
+      return collectionData[t];
     });
+  }
+  // Hook into Eleventy’s build process
+  eleventyConfig.on("eleventy.after", ({dir}) => {
+    const outputDir = dir.output || '_site';
+    const outputPath = path.join(outputDir, pluginOptions.outputPath);
+
+    // Generate the llms.txt content
+    const llmsTxtContent = generateLlmsTxt(collectionData, pluginOptions);
+      
+    // Write to file
+    try {
+      fs.writeFileSync(outputPath, llmsTxtContent);
+      console.log(`✅ Generated ${pluginOptions.outputPath}`);
+    } catch (error) {
+      console.error(`❌ Error generating ${pluginOptions.outputPath}:`, error);
+    }
   });
+  
 };

@@ -1,0 +1,12 @@
+{
+  "name": "eleventy-plugin-llms-txt-advanced-example",
+  "version": "1.0.0",
+  "description": "Advanced example for eleventy-plugin-llms-txt",
+  "scripts": {
+    "build": "eleventy",
+    "serve": "eleventy --serve"
+  },
+  "dependencies": {
+    "@11ty/eleventy": "^3.0.0"
+  }
+}

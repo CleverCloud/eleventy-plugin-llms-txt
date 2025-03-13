@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ title }} - Advanced Example</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      line-height: 1.6;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 1rem;
+      color: #333;
+    }
+    header {
+      border-bottom: 1px solid #eee;
+      margin-bottom: 1rem;
+      padding-bottom: 1rem;
+    }
+    nav ul {
+      list-style: none;
+      padding: 0;
+      display: flex;
+      gap: 1rem;
+    }
+    main {
+      margin: 2rem 0;
+    }
+    footer {
+      border-top: 1px solid #eee;
+      margin-top: 2rem;
+      padding-top: 1rem;
+      font-size: 0.8rem;
+      color: #666;
+    }
+    .metadata {
+      background: #f5f5f5;
+      padding: 1rem;
+      border-radius: 4px;
+      margin-bottom: 1rem;
+      font-size: 0.9rem;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Advanced Example Site</h1>
+    <nav>
+      <ul>
+        <li><a href="/">Home</a></li>
+        <li><a href="/pages/about/">About</a></li>
+        <li><a href="/blog/">Blog</a></li>
+      </ul>
+    </nav>
+  </header>
+  
+  <main>
+    <h2>{{ title }}</h2>
+    
+    <div class="metadata">
+      {% if description %}<p><strong>Description:</strong> {{ description }}</p>{% endif %}
+      {% if author %}<p><strong>Author:</strong> {{ author }}</p>{% endif %}
+      {% if category %}<p><strong>Category:</strong> {{ category }}</p>{% endif %}
+      {% if date %}<p><strong>Date:</strong> {{ date | date("%Y-%m-%d") }}</p>{% endif %}
+      {% if tags %}<p><strong>Tags:</strong> {{ tags | join(", ") }}</p>{% endif %}
+    </div>
+    
+    {{ content | safe }}
+  </main>
+  
+  <footer>
+    <p>&copy; 2025 Advanced Example Site. This is a demo for the eleventy-plugin-llms-txt.</p>
+  </footer>
+</body>
+</html>

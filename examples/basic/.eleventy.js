@@ -5,6 +5,7 @@
 const llmsTxtPlugin = require('../../.eleventy.js');
 
 module.exports = function(eleventyConfig) {
+
   // Add the llms.txt plugin with default options
   eleventyConfig.addPlugin(llmsTxtPlugin);
   

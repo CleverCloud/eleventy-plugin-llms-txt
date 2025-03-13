@@ -14,15 +14,27 @@ const fs = require('fs');
 function processContent(content, maxLength) {
   if (!content) return '';
   
+  // Remove <style> tags and their content
+  let processedContent = content.replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '');
+  
+  // Remove <script> tags and their content
+  processedContent = processedContent.replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '');
+  
   // Strip HTML tags
-  let processedContent = content.replace(/<[^>]*>/g, ' ');
+  processedContent = processedContent.replace(/<[^>]*>/g, ' ');
   
   // Normalize whitespace
   processedContent = processedContent.replace(/\s+/g, ' ').trim();
   
   // Truncate if needed
   if (maxLength && processedContent.length > maxLength) {
-    processedContent = processedContent.substring(0, maxLength) + '...';
+    // Try to truncate at a sentence boundary
+    const lastPeriod = processedContent.lastIndexOf('.', maxLength - 3);
+    if (lastPeriod > maxLength * 0.8) { // Only truncate at period if it's reasonably close to the max length
+      processedContent = processedContent.substring(0, lastPeriod + 1) + '...';
+    } else {
+      processedContent = processedContent.substring(0, maxLength) + '...';
+    }
   }
   
   return processedContent;
@@ -43,25 +55,60 @@ function generateMetadata(item, options) {
   
   let output = '';
   
-  // Title
-  output += `### Page: ${item.data.title || 'Untitled'}\n`;
+  // Handle different data structures in Eleventy 3.0.0
+  const itemData = item.data || item;
   
-  // URL
-  const fullUrl = siteUrl ? `${siteUrl.replace(/\/$/, '')}${item.url}` : item.url;
-  output += `URL: ${fullUrl}\n`;
-  
-  // Date
-  if (item.date) {
-    try {
-      output += `Date: ${item.date[dateFormat]()}\n`;
-    } catch (e) {
-      output += `Date: ${item.date.toString()}\n`;
+  // Title - handle different data structures
+  let title = itemData.title || 
+              (itemData.page && itemData.page.title);
+              
+  // Try to extract title from content if not found in metadata
+  const content = item.templateContent || item.content || itemData.content;
+  if (!title && content) {
+    // Try to extract from title tag
+    let titleMatch = content.match(/<title>([^<]+)<\/title>/i);
+    
+    // If not found in title tag, try h1
+    if (!titleMatch) {
+      titleMatch = content.match(/<h1[^>]*>([^<]+)<\/h1>/i);
+    }
+    
+    // If still not found, try to extract from the first line of content
+    if (!titleMatch && content.includes('-')) {
+      const firstLine = content.split('\n')[0];
+      if (firstLine && firstLine.includes('-')) {
+        title = firstLine.split('-')[0].trim();
+      }
+    } else if (titleMatch && titleMatch[1]) {
+      title = titleMatch[1].trim();
     }
   }
   
-  // Tags
-  if (item.data.tags && item.data.tags.length > 0) {
-    const filteredTags = item.data.tags.filter(tag => tag !== 'all');
+  // Default to 'Untitled' if no title found
+  title = title || 'Untitled';
+  output += `### Page: ${title}\n`;
+  
+  // URL - handle different data structures
+  const url = item.url || 
+              (itemData.page && itemData.page.url) || 
+              '/';
+  const fullUrl = siteUrl ? `${siteUrl.replace(/\/$/, '')}${url}` : url;
+  output += `URL: ${fullUrl}\n`;
+  
+  // Date - handle different data structures
+  const date = item.date || itemData.date;
+  if (date) {
+    try {
+      output += `Date: ${date[dateFormat]()}\n`;
+    } catch (e) {
+      output += `Date: ${date.toString()}\n`;
+    }
+  }
+  
+  // Tags - handle different data structures
+  const tags = itemData.tags || (itemData.page && itemData.page.tags);
+  if (tags && Array.isArray(tags) && tags.length > 0) {
+    const filteredTags = tags.filter(tag => tag !== 'all');
     if (filteredTags.length > 0) {
       output += `Tags: ${filteredTags.join(', ')}\n`;
     }
@@ -69,11 +116,14 @@ function generateMetadata(item, options) {
   
   // Additional metadata fields
   additionalMetadata.forEach(field => {
-    if (item.data[field] !== undefined) {
-      const value = typeof item.data[field] === 'object' 
-        ? JSON.stringify(item.data[field]) 
-        : item.data[field];
-      output += `${field}: ${value}\n`;
+    const value = itemData[field] !== undefined ? itemData[field] : 
+                 (itemData.page && itemData.page[field]);
+    
+    if (value !== undefined) {
+      const formattedValue = typeof value === 'object' 
+        ? JSON.stringify(value) 
+        : value;
+      output += `${field}: ${formattedValue}\n`;
     }
   });
   
@@ -120,24 +170,67 @@ function generateLlmsTxt(collections, options) {
   collectionNames.forEach(collectionName => {
     if (excludeCollections.includes(collectionName)) return;
     
+    // Check if the collection exists
     const collection = collections[collectionName];
-    if (!collection || collection.length === 0) return;
+    if (!collection || collection.length === 0) {
+      console.log(`Collection '${collectionName}' is empty or not found, skipping...`);
+      
+      // Special handling for 'post' collection in Eleventy 3.0.0
+      // If we're looking for 'post' collection, try to find items in the blog directory
+      if (collectionName === 'post' && collections['all']) {
+        const blogItems = collections['all'].filter(item => 
+          item.inputPath && item.inputPath.includes('/blog/')
+        );
+        
+        if (blogItems.length > 0) {
+          console.log(`Found ${blogItems.length} blog items for 'post' collection by path filtering`);
+          console.log(`Processing 'post' collection with ${blogItems.length} items`);
+          output += `## Collection: post
 
+`;
+          
+          // Process each blog item
+          blogItems.forEach(item => {
+            processItem(item, output);
+          });
+          
+          // Skip the regular collection processing for 'post'
+          return;
+        }
+      }
+      
+      return;
+    }
+
+    console.log(`Processing collection '${collectionName}' with ${collection.length} items`);
     output += `## Collection: ${collectionName}\n\n`;
 
     collection.forEach(item => {
+      // Handle different data structures in Eleventy 3.0.0
+      const itemData = item.data || item;
+      
       // Skip excluded content types
-      const contentType = item.data?.contentType || 'page';
+      const contentType = itemData.contentType || 
+                         (itemData.page && itemData.page.contentType) || 
+                         'page';
       if (excludeContentTypes.includes(contentType)) return;
 
       // Add metadata
       output += generateMetadata(item, options);
       
       // Add content if requested
-      if (includeContent && item.templateContent) {
-        const processedContent = processContent(item.templateContent, maxContentLength);
-        if (processedContent) {
-          output += `\nContent:\n${processedContent}\n`;
+      if (includeContent) {
+        // Handle different content structures
+        const content = item.templateContent || 
+                       item.content || 
+                       itemData.content || 
+                       (itemData.page && itemData.page.content);
+                       
+        if (content) {
+          const processedContent = processContent(content, maxContentLength);
+          if (processedContent) {
+            output += `\nContent:\n${processedContent}\n`;
+          }
         }
       }
       
