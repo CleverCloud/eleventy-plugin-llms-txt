@@ -147,7 +147,9 @@ function generateLlmsTxt(collections, options) {
     dateFormat = 'toISOString',
     additionalMetadata = [],
     includeHeader = true,
-    customHeader = ''
+    customHeader = '',
+    sortByDate = false,
+    sortDirection = 'desc'
   } = options;
 
   let output = '';
@@ -172,40 +174,29 @@ function generateLlmsTxt(collections, options) {
     
     // Check if the collection exists
     const collection = collections[collectionName];
-    if (!collection || collection.length === 0) {
-      console.log(`Collection '${collectionName}' is empty or not found, skipping...`);
-      
-      // Special handling for 'post' collection in Eleventy 3.0.0
-      // If we're looking for 'post' collection, try to find items in the blog directory
-      if (collectionName === 'post' && collections['all']) {
-        const blogItems = collections['all'].filter(item => 
-          item.inputPath && item.inputPath.includes('/blog/')
-        );
-        
-        if (blogItems.length > 0) {
-          console.log(`Found ${blogItems.length} blog items for 'post' collection by path filtering`);
-          console.log(`Processing 'post' collection with ${blogItems.length} items`);
-          output += `## Collection: post
-
-`;
-          
-          // Process each blog item
-          blogItems.forEach(item => {
-            processItem(item, output);
-          });
-          
-          // Skip the regular collection processing for 'post'
-          return;
-        }
-      }
-      
-      return;
-    }
 
     console.log(`Processing collection '${collectionName}' with ${collection.length} items`);
     output += `## Collection: ${collectionName}\n\n`;
+    
+    // Sort collection by date if requested
+    let collectionToProcess = [...collection];
+    if (sortByDate) {
+      collectionToProcess.sort((a, b) => {
+        const aData = a.data || a;
+        const bData = b.data || b;
+        const aDate = a.date || aData.date || new Date(0);
+        const bDate = b.date || bData.date || new Date(0);
+        
+        // Handle case where dates might not be Date objects
+        const aTimestamp = aDate instanceof Date ? aDate.getTime() : new Date(aDate).getTime();
+        const bTimestamp = bDate instanceof Date ? bDate.getTime() : new Date(bDate).getTime();
+        
+        return sortDirection === 'desc' ? bTimestamp - aTimestamp : aTimestamp - bTimestamp;
+      });
+      console.log(`Sorted collection '${collectionName}' by date (${sortDirection}ending)`);
+    }
 
-    collection.forEach(item => {
+    collectionToProcess.forEach(item => {
       // Handle different data structures in Eleventy 3.0.0
       const itemData = item.data || item;
       

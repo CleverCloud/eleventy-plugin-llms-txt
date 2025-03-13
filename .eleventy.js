@@ -27,6 +27,8 @@ module.exports = function(eleventyConfig, options = {}) {
     additionalMetadata: [],
     includeHeader: true,
     customHeader: '',
+    sortByDate: false,
+    sortDirection: 'desc', // 'desc' for newest first, 'asc' for oldest first
     ...options
   };
 

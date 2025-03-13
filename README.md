@@ -41,6 +41,8 @@ The plugin accepts the following options:
 | `maxContentLength` | Number | `10000` | Maximum length of content to include |
 | `dateFormat` | String | `'toISOString'` | Date format method to use |
 | `additionalMetadata` | Array | `[]` | Additional metadata fields to include |
+| `sortByDate` | Boolean | `false` | Whether to sort collection items by date |
+| `sortDirection` | String | `'desc'` | Sort direction: `'desc'` (newest first) or `'asc'` (oldest first) |
 
 ### Example with options
 
@@ -51,7 +53,9 @@ eleventyConfig.addPlugin(llmsTxtPlugin, {
   excludeCollections: ['drafts'],
   siteUrl: 'https://example.com',
   maxContentLength: 5000,
-  additionalMetadata: ['description', 'author']
+  additionalMetadata: ['description', 'author'],
+  sortByDate: true,
+  sortDirection: 'desc' // 'desc' for newest first, 'asc' for oldest first
 });
 ```
 
