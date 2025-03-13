@@ -12,12 +12,20 @@
     "llm",
     "ai"
   ],
-  "author": "",
+  "author": "Horacio Gonzalez <horacio.gonzalez@gmail.com>",
   "license": "MIT",
   "peerDependencies": {
     "@11ty/eleventy": "^2.0.0"
   },
   "engines": {
     "node": ">=14.0.0"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/LostInBrittany/eleventy-plugin-llms-txt.git"
+  },
+  "bugs": {
+    "url": "https://github.com/LostInBrittany/eleventy-plugin-llms-txt/issues"
+  },
+  "homepage": "https://github.com/LostInBrittany/eleventy-plugin-llms-txt#readme"
 }
