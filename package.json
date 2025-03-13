@@ -22,10 +22,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/LostInBrittany/eleventy-plugin-llms-txt.git"
+    "url": "git+https://github.com/CleverCloud/eleventy-plugin-llms-txt.git"
   },
   "bugs": {
-    "url": "https://github.com/LostInBrittany/eleventy-plugin-llms-txt/issues"
+    "url": "https://github.com/CleverCloud/eleventy-plugin-llms-txt/issues"
   },
-  "homepage": "https://github.com/LostInBrittany/eleventy-plugin-llms-txt#readme"
+  "homepage": "https://github.com/CleverCloud/eleventy-plugin-llms-txt#readme"
 }
