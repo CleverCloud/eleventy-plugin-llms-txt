@@ -1,0 +1,23 @@
+{
+  "name": "eleventy-plugin-llms-txt",
+  "version": "1.0.0",
+  "description": "An Eleventy plugin that generates llms.txt to expose site content to LLMs",
+  "main": ".eleventy.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "eleventy",
+    "eleventy-plugin",
+    "llm",
+    "ai"
+  ],
+  "author": "",
+  "license": "MIT",
+  "peerDependencies": {
+    "@11ty/eleventy": "^2.0.0"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  }
+}

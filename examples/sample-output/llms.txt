@@ -1,0 +1,57 @@
+# Site Content for LLMs
+# Generated: 2025-03-13T09:49:12.000Z
+# Site URL: https://example.com
+
+## Collection: all
+
+### Page: Home Page
+URL: https://example.com/index.html
+Date: 2025-01-01T00:00:00.000Z
+Tags: page, home
+description: Welcome to my personal website
+author: John Doe
+
+Content:
+Welcome to my personal website This is the homepage of my personal website. I write about technology, programming, and other topics that interest me.
+
+---
+
+### Page: About Me
+URL: https://example.com/about/index.html
+Date: 2025-01-02T00:00:00.000Z
+Tags: page, about
+description: About John Doe
+author: John Doe
+
+Content:
+About Me I am a software developer with 10 years of experience. I specialize in web development, particularly with JavaScript and Node.js. I am passionate about creating accessible and performant web applications.
+
+---
+
+### Page: My First Blog Post
+URL: https://example.com/blog/first-post/index.html
+Date: 2025-01-10T00:00:00.000Z
+Tags: post, javascript
+description: Introduction to JavaScript
+author: John Doe
+category: Programming
+
+Content:
+My First Blog Post JavaScript is a versatile programming language that powers the modern web. In this post, I'll introduce you to the basics of JavaScript and show you how to get started with it. JavaScript was created in 1995 by Brendan Eich while he was an engineer at Netscape. It was originally developed as a way to add interactivity to web pages, but has since evolved into a powerful language that can be used for both frontend and backend development.
+
+---
+
+## Collection: posts
+
+### Page: My First Blog Post
+URL: https://example.com/blog/first-post/index.html
+Date: 2025-01-10T00:00:00.000Z
+Tags: post, javascript
+description: Introduction to JavaScript
+author: John Doe
+category: Programming
+
+Content:
+My First Blog Post JavaScript is a versatile programming language that powers the modern web. In this post, I'll introduce you to the basics of JavaScript and show you how to get started with it. JavaScript was created in 1995 by Brendan Eich while he was an engineer at Netscape. It was originally developed as a way to add interactivity to web pages, but has since evolved into a powerful language that can be used for both frontend and backend development.
+
+---
