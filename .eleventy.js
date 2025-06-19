@@ -29,6 +29,8 @@ module.exports = function(eleventyConfig, options = {}) {
     customHeader: '',
     sortByDate: false,
     sortDirection: 'desc', // 'desc' for newest first, 'asc' for oldest first
+    normalizeWhitespace: false, // Whether to normalize whitespace in content
+    stripHorizontalRules: true, // Whether to remove '---' from content
     ...options
   };
 

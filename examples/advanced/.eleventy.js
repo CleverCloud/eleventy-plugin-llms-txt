@@ -22,13 +22,15 @@ module.exports = function(eleventyConfig) {
   // Add the llms.txt plugin with custom options
   eleventyConfig.addPlugin(llmsTxtPlugin, {
     outputPath: 'ai/llms.txt',
-    collections: ['post'],  // Only include the 'post' collection
+    collections: ['post', 'page'],  // Include both 'post' and 'page' collections
     excludeCollections: ['drafts'],
     siteUrl: 'https://example.com',
     includeContent: true,
     maxContentLength: 5000,
     dateFormat: 'toISOString',
-    additionalMetadata: ['description', 'author', 'category']
+    additionalMetadata: ['description', 'author', 'category'],
+    normalizeWhitespace: false, // Preserve whitespace formatting
+    stripHorizontalRules: true  // Remove '---' from content
   });
   
   // Return your Eleventy configuration options

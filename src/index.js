@@ -9,9 +9,11 @@ const fs = require('fs');
  * Process HTML content to clean it for LLM consumption
  * @param {String} content - HTML content
  * @param {Number} maxLength - Maximum content length
+ * @param {Boolean} normalizeWhitespace - Whether to normalize whitespace
+ * @param {Boolean} stripHorizontalRules - Whether to remove '---' from content
  * @returns {String} - Processed content
  */
-function processContent(content, maxLength) {
+function processContent(content, maxLength, normalizeWhitespace = false, stripHorizontalRules = true) {
   if (!content) return '';
   
   // Remove <style> tags and their content
@@ -23,8 +25,19 @@ function processContent(content, maxLength) {
   // Strip HTML tags
   processedContent = processedContent.replace(/<[^>]*>/g, ' ');
   
-  // Normalize whitespace
-  processedContent = processedContent.replace(/\s+/g, ' ').trim();
+  // Remove horizontal rules if configured
+  if (stripHorizontalRules) {
+    // Replace '---' with a space to avoid breaking content flow
+    processedContent = processedContent.replace(/---/g, ' ');
+  }
+  
+  // Normalize whitespace if configured
+  if (normalizeWhitespace) {
+    processedContent = processedContent.replace(/\s+/g, ' ').trim();
+  } else {
+    // Just trim leading/trailing whitespace but preserve internal formatting
+    processedContent = processedContent.trim();
+  }
   
   // Truncate if needed
   if (maxLength && processedContent.length > maxLength) {
@@ -149,7 +162,9 @@ function generateLlmsTxt(collections, options) {
     includeHeader = true,
     customHeader = '',
     sortByDate = false,
-    sortDirection = 'desc'
+    sortDirection = 'desc',
+    normalizeWhitespace = false,
+    stripHorizontalRules = true
   } = options;
 
   let output = '';
@@ -218,7 +233,7 @@ function generateLlmsTxt(collections, options) {
                        (itemData.page && itemData.page.content);
                        
         if (content) {
-          const processedContent = processContent(content, maxContentLength);
+          const processedContent = processContent(content, maxContentLength, normalizeWhitespace, stripHorizontalRules);
           if (processedContent) {
             output += `\nContent:\n${processedContent}\n`;
           }

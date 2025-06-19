@@ -43,6 +43,8 @@ The plugin accepts the following options:
 | `additionalMetadata` | Array | `[]` | Additional metadata fields to include |
 | `sortByDate` | Boolean | `false` | Whether to sort collection items by date |
 | `sortDirection` | String | `'desc'` | Sort direction: `'desc'` (newest first) or `'asc'` (oldest first) |
+| `normalizeWhitespace` | Boolean | `false` | Whether to normalize whitespace in content (replacing multiple spaces/newlines with a single space) |
+| `stripHorizontalRules` | Boolean | `true` | Whether to remove `---` from content (to avoid confusion with page separators) |
 
 ### Example with options
 
