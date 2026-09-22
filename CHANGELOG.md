@@ -4,6 +4,7 @@
 
 ### Fixed
 
+- **Output path:** An `outputPath` containing a subdirectory, such as `ai/llms.txt`, no longer fails with `ENOENT` ([#3](https://github.com/CleverCloud/eleventy-plugin-llms-txt/issues/3)). The plugin now creates the parent directory before writing.
 - **Collections:** The plugin no longer crashes with `config.addCollection(<name>) already exists` when a configured collection is also defined in your own Eleventy config ([#1](https://github.com/CleverCloud/eleventy-plugin-llms-txt/issues/1)). It now registers a single internal collection instead of one per configured name, so it never claims a name your site uses. When you have defined a collection yourself, the plugin reuses your definition, preserving your sorting and filtering; otherwise it falls back to a tag lookup.
 
 ### Added
