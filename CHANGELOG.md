@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.3.1 (2026-09-22)
+
+No user-facing change. Cut deliberately to exercise the new release pipeline: this is the first version published by CI over OIDC, with provenance attached.
+
+### Fixed
+
+- **Test script:** `npm test` used `node --test test/`, which fails on Node 22 and 24 (`Cannot find module '.../test'`). It now passes an explicit glob. This affects contributors only; `test/` is not part of the published package.
+
 ## 1.3.0 (2026-09-22)
 
 Two bug fixes, one of which changes how collections are resolved – see the note below if you define your own collections.
