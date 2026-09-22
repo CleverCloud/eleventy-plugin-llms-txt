@@ -80,16 +80,18 @@ module.exports = function(eleventyConfig, options = {}) {
     // Generate the llms.txt content
     const llmsTxtContent = generateLlmsTxt(collectionData, pluginOptions);
       
-    // Write to file
+    // Write to file. A failure here fails the build: reporting success while
+    // producing no llms.txt hides exactly the kind of bug this once shipped.
     try {
       // Eleventy creates the output directory itself, but not any subdirectory
       // the configured outputPath asks for.
       fs.mkdirSync(path.dirname(outputPath), { recursive: true });
       fs.writeFileSync(outputPath, llmsTxtContent);
-      console.log(`✅ Generated ${pluginOptions.outputPath}`);
     } catch (error) {
-      console.error(`❌ Error generating ${pluginOptions.outputPath}:`, error);
+      throw new Error(`Could not write ${outputPath}: ${error.message}`, { cause: error });
     }
+
+    console.log(`✅ Generated ${pluginOptions.outputPath}`);
   });
   
 };
