@@ -1,8 +1,16 @@
 {
   "name": "eleventy-plugin-llms-txt",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "An Eleventy plugin that generates llms.txt to expose site content to LLMs",
   "main": ".eleventy.js",
+  "files": [
+    ".eleventy.js",
+    "src/",
+    "docs/",
+    "README.md",
+    "CHANGELOG.md",
+    "LICENSE"
+  ],
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -18,7 +26,7 @@
     "@11ty/eleventy": "^3.0.0"
   },
   "engines": {
-    "node": ">=14.0.0"
+    "node": ">=18.0.0"
   },
   "repository": {
     "type": "git",
