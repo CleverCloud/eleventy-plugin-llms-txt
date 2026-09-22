@@ -1,6 +1,8 @@
 # Changelog
 
-## Unreleased
+## 1.3.0 (2026-09-22)
+
+Two bug fixes, one of which changes how collections are resolved – see the note below if you define your own collections.
 
 ### Fixed
 
@@ -10,6 +12,11 @@
 ### Added
 
 - **Tests:** `npm test` now runs a regression suite with `node --test`, replacing the placeholder script.
+- **Warnings:** The plugin now warns when a configured collection resolves to no items, so a collection it cannot see – a glob-based one, say – is no longer silently empty.
+
+### Changed
+
+- **Collection resolution:** When a configured name matches a collection you defined yourself, the plugin now uses *your* definition rather than a tag lookup. Output can therefore differ from 1.2.x: your sort order and filtering are preserved. Names you have not defined still resolve by tag, as before.
 
 ## 1.2.1 (2026-09-22)
 
