@@ -42,8 +42,9 @@ jobs:
           echo "node: $(node --version)"
           echo "npm:  $(npm --version)"
           # Presence only - never print the token itself.
-          echo "OIDC request URL: ${ACTIONS_ID_TOKEN_REQUEST_URL:+present}${ACTIONS_ID_TOKEN_REQUEST_URL:-MISSING}"
-          echo "OIDC token:       ${ACTIONS_ID_TOKEN_REQUEST_TOKEN:+present}${ACTIONS_ID_TOKEN_REQUEST_TOKEN:-MISSING}"
+          present() { if [ -n "$1" ]; then echo present; else echo MISSING; fi; }
+          echo "OIDC request URL: $(present "$ACTIONS_ID_TOKEN_REQUEST_URL")"
+          echo "OIDC token:       $(present "$ACTIONS_ID_TOKEN_REQUEST_TOKEN")"
           echo "user .npmrc:      $(test -f "$NPM_CONFIG_USERCONFIG" && echo "$NPM_CONFIG_USERCONFIG" || echo none)"
           echo "home .npmrc:      $(test -f ~/.npmrc && echo present || echo none)"
 
