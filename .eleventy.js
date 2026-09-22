@@ -35,13 +35,43 @@ module.exports = function(eleventyConfig, options = {}) {
   };
 
 
+  // The plugin needs a `collectionApi` to read the site's content, and a collection
+  // callback is the only place Eleventy hands one over. Declaring one collection per
+  // configured name would claim names the site may already use, which Eleventy rejects
+  // outright (`config.addCollection(x) already exists`). A single reserved name leaves
+  // the site's own collections untouched.
+  const readCollections = () =>
+    typeof eleventyConfig.getCollections === 'function' ? eleventyConfig.getCollections() : {};
+
+  let hookName = '__eleventyPluginLlmsTxt';
+  while (readCollections()[hookName]) hookName += '_';
+
   const collectionData = {};
-  for (const t of pluginOptions.collections) {
-    eleventyConfig.addCollection(t, function (collectionApi) {
-      collectionData[t] = (t=="all") ? collectionApi.getAll() : collectionApi.getFilteredByTag(t);
-      return collectionData[t];
-    });
-  }
+  eleventyConfig.addCollection(hookName, async function (collectionApi) {
+    // Read the registry here rather than at plugin time: collections declared after
+    // `addPlugin` are registered by the time this callback runs.
+    const siteCollections = readCollections();
+
+    for (const t of pluginOptions.collections) {
+      if (t === 'all') {
+        collectionData[t] = collectionApi.getAll();
+      } else if (typeof siteCollections[t] === 'function' && t !== hookName) {
+        // Reuse the site's own definition so its sorting and filtering survive.
+        collectionData[t] = await siteCollections[t](collectionApi);
+      } else {
+        collectionData[t] = collectionApi.getFilteredByTag(t);
+      }
+
+      if (!Array.isArray(collectionData[t])) {
+        console.warn(`\u26a0\ufe0f  Collection '${t}' did not return a list of items; skipping it.`);
+        collectionData[t] = [];
+      } else if (collectionData[t].length === 0) {
+        console.warn(`\u26a0\ufe0f  Collection '${t}' is empty; nothing from it will appear in ${pluginOptions.outputPath}.`);
+      }
+    }
+
+    return [];
+  });
   // Hook into Eleventy’s build process
   eleventyConfig.on("eleventy.after", ({dir}) => {
     const outputDir = dir.output || '_site';

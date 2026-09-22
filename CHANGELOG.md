@@ -1,5 +1,15 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+
+- **Collections:** The plugin no longer crashes with `config.addCollection(<name>) already exists` when a configured collection is also defined in your own Eleventy config ([#1](https://github.com/CleverCloud/eleventy-plugin-llms-txt/issues/1)). It now registers a single internal collection instead of one per configured name, so it never claims a name your site uses. When you have defined a collection yourself, the plugin reuses your definition, preserving your sorting and filtering; otherwise it falls back to a tag lookup.
+
+### Added
+
+- **Tests:** `npm test` now runs a regression suite with `node --test`, replacing the placeholder script.
+
 ## 1.2.1 (2026-09-22)
 
 Packaging-only release – no changes to plugin behaviour.
