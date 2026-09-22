@@ -73,8 +73,10 @@ module.exports = function(eleventyConfig, options = {}) {
     return [];
   });
   // Hook into Eleventy’s build process
-  eleventyConfig.on("eleventy.after", ({dir}) => {
-    const outputDir = dir.output || '_site';
+  eleventyConfig.on("eleventy.after", ({ dir, directories }) => {
+    // `dir` is deprecated in favour of `directories`, which Eleventy normalises.
+    // Both are present in Eleventy 3 and 4; keep the fallback while that holds.
+    const outputDir = (directories && directories.output) || (dir && dir.output) || '_site';
     const outputPath = path.join(outputDir, pluginOptions.outputPath);
 
     // Generate the llms.txt content

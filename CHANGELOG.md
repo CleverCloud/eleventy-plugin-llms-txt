@@ -1,5 +1,15 @@
 # Changelog
 
+## Unreleased
+
+### Changed
+
+- **Output directory:** The plugin now reads `directories.output` from the `eleventy.after` event, falling back to the deprecated `dir.output`. No behavioural change – both resolve to the same path – but `dir` is deprecated in Eleventy 3 and 4.
+
+### Added
+
+- **Eleventy 4 compatibility, documented and checked.** Verified against `4.0.0-alpha.10`: the plugin works unchanged and produces identical output. See [`docs/ELEVENTY_4.md`](docs/ELEVENTY_4.md). CI now builds an example against the Eleventy `canary` tag on every pull request and weekly, so a breaking alpha surfaces on its own. The job is informational and never blocks.
+
 ## 1.4.0 (2026-09-22)
 
 A behaviour change: builds that silently produced no `llms.txt` now fail. If your build goes red on upgrade, it was already not writing the file.

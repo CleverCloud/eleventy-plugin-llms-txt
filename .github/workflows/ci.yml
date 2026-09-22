@@ -4,6 +4,10 @@ on:
   push:
     branches: [main]
   pull_request:
+  # Weekly, so a new Eleventy canary that breaks the plugin surfaces on its own
+  # rather than waiting for someone to open a pull request.
+  schedule:
+    - cron: '0 6 * * 1'
 
 permissions:
   contents: read
@@ -52,5 +56,31 @@ jobs:
         working-directory: examples/advanced
         run: |
           npm ci
+          npm run build
+          test -f _site/ai/llms.txt
+
+  eleventy-canary:
+    # Informational: Eleventy 4 is still an alpha, so a failure here is news,
+    # not a broken build. It must never block a pull request.
+    name: Eleventy 4 canary (informational)
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          # Eleventy 4 requires >=22.15, so the engines floor of 18 cannot be used here.
+          node-version: '24'
+
+      - name: Build the advanced example against the Eleventy canary
+        working-directory: examples/advanced
+        # Deliberate exception to the lockfile rule used elsewhere: the point of
+        # this job is to track the newest alpha, so it must re-resolve. Nothing
+        # installed here is ever published.
+        run: |
+          npm ci
+          npm install --no-save @11ty/eleventy@canary
+          npx @11ty/eleventy --version
           npm run build
           test -f _site/ai/llms.txt

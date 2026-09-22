@@ -202,3 +202,36 @@ test('the write error names the output path and keeps the original cause', async
     `the cause should carry a filesystem error code, got ${error.cause.code}`
   );
 });
+
+test('prefers directories.output over the deprecated dir.output', async () => {
+  const eleventyConfig = makeEleventyConfig();
+  llmsTxtPlugin(eleventyConfig, { includeContent: false });
+  for (const callback of Object.values(eleventyConfig.collections)) {
+    await callback(makeCollectionApi());
+  }
+
+  const chosen = fs.mkdtempSync(path.join(os.tmpdir(), 'llms-txt-chosen-'));
+  const ignored = fs.mkdtempSync(path.join(os.tmpdir(), 'llms-txt-ignored-'));
+  for (const handler of eleventyConfig.events['eleventy.after']) {
+    // Eleventy passes both; `directories` is the supported one.
+    await handler({ directories: { output: chosen }, dir: { output: ignored } });
+  }
+
+  assert.ok(fs.existsSync(path.join(chosen, 'llms.txt')), 'should write to directories.output');
+  assert.ok(!fs.existsSync(path.join(ignored, 'llms.txt')), 'should not write to dir.output');
+});
+
+test('falls back to dir.output when directories is absent', async () => {
+  const eleventyConfig = makeEleventyConfig();
+  llmsTxtPlugin(eleventyConfig, { includeContent: false });
+  for (const callback of Object.values(eleventyConfig.collections)) {
+    await callback(makeCollectionApi());
+  }
+
+  const outputDir = fs.mkdtempSync(path.join(os.tmpdir(), 'llms-txt-fallback-'));
+  for (const handler of eleventyConfig.events['eleventy.after']) {
+    await handler({ dir: { output: outputDir } });
+  }
+
+  assert.ok(fs.existsSync(path.join(outputDir, 'llms.txt')));
+});
