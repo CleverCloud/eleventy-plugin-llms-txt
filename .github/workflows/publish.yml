@@ -17,10 +17,14 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
+      # Deliberately no `registry-url`: it makes setup-node write an .npmrc
+      # containing `_authToken=${NODE_AUTH_TOKEN}`, and with no token supplied
+      # that expands to a placeholder. npm then authenticates with the bogus
+      # token instead of exchanging the OIDC credential, and publishing fails
+      # with a 404. Trusted publishing needs no .npmrc at all.
       - uses: actions/setup-node@v5
         with:
           node-version: '24'
-          registry-url: 'https://registry.npmjs.org'
 
       # Trusted publishing needs a recent npm; the one bundled with Node may lag.
       - name: Use an npm that supports trusted publishing
