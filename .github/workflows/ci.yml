@@ -15,8 +15,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # 18 is the floor declared in engines; 22 and 24 are the maintained lines.
-        node: ['18', '22', '24']
+        # 18 is the floor declared in engines (matching eleventy 3's own >=18),
+        # 22 and 24 are the LTS lines, 26 is Current.
+        node: ['18', '22', '24', '26']
     steps:
       - uses: actions/checkout@v5
 
