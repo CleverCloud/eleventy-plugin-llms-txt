@@ -1,6 +1,8 @@
 # Changelog
 
-## Unreleased
+## 1.4.0 (2026-09-22)
+
+A behaviour change: builds that silently produced no `llms.txt` now fail. If your build goes red on upgrade, it was already not writing the file.
 
 ### Changed
 
