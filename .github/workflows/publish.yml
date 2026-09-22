@@ -67,4 +67,15 @@ jobs:
       # attaches provenance linking the tarball to this commit and run.
       - name: Publish
         if: github.event_name == 'release' || inputs.dry_run == false
-        run: npm publish --provenance --access public
+        run: npm publish --provenance --access public --loglevel verbose
+
+      # Shows whether npm attempted the OIDC exchange at all, and what the
+      # registry answered. Filtered rather than dumped wholesale.
+      - name: Report what npm attempted
+        if: failure()
+        run: |
+          echo "registry: $(npm config get registry)"
+          for f in ~/.npm/_logs/*.log; do
+            echo "=== $f ==="
+            grep -iE 'oidc|trusted|provenance|id-token|audience|http fetch|ENEEDAUTH|401|403' "$f" | head -40
+          done
