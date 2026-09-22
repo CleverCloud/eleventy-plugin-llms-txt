@@ -82,6 +82,9 @@ module.exports = function(eleventyConfig, options = {}) {
       
     // Write to file
     try {
+      // Eleventy creates the output directory itself, but not any subdirectory
+      // the configured outputPath asks for.
+      fs.mkdirSync(path.dirname(outputPath), { recursive: true });
       fs.writeFileSync(outputPath, llmsTxtContent);
       console.log(`✅ Generated ${pluginOptions.outputPath}`);
     } catch (error) {

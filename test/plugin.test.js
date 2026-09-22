@@ -60,7 +60,7 @@ function makeCollectionApi(items = ITEMS) {
 }
 
 /** Run every collection callback the plugin registered, then the after-build hook. */
-async function build(eleventyConfig, userDefinedNames = []) {
+async function build(eleventyConfig, userDefinedNames = [], outputPath = 'llms.txt') {
   const collectionApi = makeCollectionApi();
   for (const [name, callback] of Object.entries(eleventyConfig.collections)) {
     if (userDefinedNames.includes(name)) continue;
@@ -70,7 +70,7 @@ async function build(eleventyConfig, userDefinedNames = []) {
   for (const handler of eleventyConfig.events['eleventy.after'] || []) {
     await handler({ dir: { output: outputDir } });
   }
-  return fs.readFileSync(path.join(outputDir, 'llms.txt'), 'utf8');
+  return fs.readFileSync(path.join(outputDir, outputPath), 'utf8');
 }
 
 test('does not crash when a configured collection is already defined by the user', () => {
@@ -138,4 +138,20 @@ test("still supports the default 'all' collection", async () => {
   for (const item of ITEMS) {
     assert.ok(output.includes(item.data.title), `${item.data.title} should be present`);
   }
+});
+
+test('creates the output directory when outputPath has a subdirectory', async () => {
+  const eleventyConfig = makeEleventyConfig();
+  llmsTxtPlugin(eleventyConfig, { outputPath: 'ai/llms.txt', includeContent: false });
+
+  const output = await build(eleventyConfig, [], 'ai/llms.txt');
+  assert.ok(output.includes('About'), 'llms.txt should be written inside the nested directory');
+});
+
+test('creates nested output directories several levels deep', async () => {
+  const eleventyConfig = makeEleventyConfig();
+  llmsTxtPlugin(eleventyConfig, { outputPath: 'ai/meta/llms.txt', includeContent: false });
+
+  const output = await build(eleventyConfig, [], 'ai/meta/llms.txt');
+  assert.ok(output.includes('About'));
 });
