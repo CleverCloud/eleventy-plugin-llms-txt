@@ -5,6 +5,13 @@ name: Publish to npm
 on:
   release:
     types: [published]
+  # Manual trigger for checking the publishing setup without cutting a release.
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Skip the actual publish, only report the environment'
+        type: boolean
+        default: true
 
 permissions:
   contents: read
@@ -30,6 +37,16 @@ jobs:
       - name: Use an npm that supports trusted publishing
         run: npm install -g npm@latest
 
+      - name: Report the publishing environment
+        run: |
+          echo "node: $(node --version)"
+          echo "npm:  $(npm --version)"
+          # Presence only - never print the token itself.
+          echo "OIDC request URL: ${ACTIONS_ID_TOKEN_REQUEST_URL:+present}${ACTIONS_ID_TOKEN_REQUEST_URL:-MISSING}"
+          echo "OIDC token:       ${ACTIONS_ID_TOKEN_REQUEST_TOKEN:+present}${ACTIONS_ID_TOKEN_REQUEST_TOKEN:-MISSING}"
+          echo "user .npmrc:      $(test -f "$NPM_CONFIG_USERCONFIG" && echo "$NPM_CONFIG_USERCONFIG" || echo none)"
+          echo "home .npmrc:      $(test -f ~/.npmrc && echo present || echo none)"
+
       - run: npm test
 
       - name: Check the release tag matches package.json
@@ -45,4 +62,5 @@ jobs:
       # No token: the workflow authenticates to npm over OIDC, which also
       # attaches provenance linking the tarball to this commit and run.
       - name: Publish
+        if: github.event_name == 'release' || inputs.dry_run == false
         run: npm publish --provenance --access public
