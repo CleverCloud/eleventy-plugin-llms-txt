@@ -155,3 +155,50 @@ test('creates nested output directories several levels deep', async () => {
   const output = await build(eleventyConfig, [], 'ai/meta/llms.txt');
   assert.ok(output.includes('About'));
 });
+
+/** An output directory where 'ai' is a file, so 'ai/llms.txt' cannot be created. */
+function makeUnwritableOutputDir() {
+  const outputDir = fs.mkdtempSync(path.join(os.tmpdir(), 'llms-txt-test-'));
+  fs.writeFileSync(path.join(outputDir, 'ai'), 'this is a file, not a directory');
+  return outputDir;
+}
+
+async function runAfterBuild(eleventyConfig, outputDir) {
+  for (const callback of Object.values(eleventyConfig.collections)) {
+    await callback(makeCollectionApi());
+  }
+  for (const handler of eleventyConfig.events['eleventy.after'] || []) {
+    await handler({ dir: { output: outputDir } });
+  }
+}
+
+test('fails the build when llms.txt cannot be written', async () => {
+  const eleventyConfig = makeEleventyConfig();
+  llmsTxtPlugin(eleventyConfig, { outputPath: 'ai/llms.txt', includeContent: false });
+
+  await assert.rejects(
+    () => runAfterBuild(eleventyConfig, makeUnwritableOutputDir()),
+    /Could not write/,
+    'a failed write must not be swallowed'
+  );
+});
+
+test('the write error names the output path and keeps the original cause', async () => {
+  const eleventyConfig = makeEleventyConfig();
+  llmsTxtPlugin(eleventyConfig, { outputPath: 'ai/llms.txt', includeContent: false });
+
+  const error = await runAfterBuild(eleventyConfig, makeUnwritableOutputDir()).then(
+    () => null,
+    (e) => e
+  );
+
+  assert.ok(error, 'the handler should have thrown');
+  assert.match(error.message, /ai\/llms\.txt/, 'the message should name the output path');
+  assert.ok(error.cause instanceof Error, 'the original error should be kept as cause');
+  // The exact code varies by platform (EEXIST on Linux, ENOTDIR elsewhere), so
+  // assert that the filesystem error survived rather than which one it was.
+  assert.ok(
+    typeof error.cause.code === 'string' && error.cause.code.length > 0,
+    `the cause should carry a filesystem error code, got ${error.cause.code}`
+  );
+});

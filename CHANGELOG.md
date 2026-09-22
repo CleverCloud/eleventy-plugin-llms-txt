@@ -1,5 +1,17 @@
 # Changelog
 
+## Unreleased
+
+### Changed
+
+- **A failed write now fails the build.** Writing `llms.txt` was wrapped in a catch that only logged, so a build that produced no `llms.txt` still reported success. That is what hid [#3](https://github.com/CleverCloud/eleventy-plugin-llms-txt/issues/3) for so long. The error is now raised, naming the output path and keeping the original filesystem error as its `cause`:
+
+  ```
+  [11ty] Could not write _site/ai/llms.txt: EEXIST: file already exists, mkdir '_site/ai'
+  ```
+
+  Eleventy exits non-zero. In watch mode a failing rebuild is reported without stopping the watcher, so the dev loop is unaffected.
+
 ## 1.3.1 (2026-09-22)
 
 No user-facing change. Cut deliberately to exercise the new release pipeline: this is the first version published by CI over OIDC, with provenance attached.
