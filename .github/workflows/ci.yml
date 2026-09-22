@@ -1,0 +1,55 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: Tests (Node ${{ matrix.node }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # 18 is the floor declared in engines; 22 and 24 are the maintained lines.
+        node: ['18', '22', '24']
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: ${{ matrix.node }}
+
+      # The plugin itself has no dependencies, so there is nothing to install.
+      - run: npm test
+
+  examples:
+    name: Example sites build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '24'
+
+      # `npm ci` installs exactly what the lockfiles pin, so the two-week minimum
+      # age those lockfiles were resolved with still holds. Do not use `npm install`
+      # here: it would re-resolve and could pull a package published hours ago.
+      - name: Build the basic example
+        working-directory: examples/basic
+        run: |
+          npm ci
+          npm run build
+          test -f _site/llms.txt
+
+      - name: Build the advanced example
+        working-directory: examples/advanced
+        run: |
+          npm ci
+          npm run build
+          test -f _site/ai/llms.txt
