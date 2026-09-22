@@ -50,7 +50,10 @@ jobs:
 
       - run: npm test
 
+      # Only meaningful for a release: on a manual run GITHUB_REF_NAME is the
+      # branch. npm refuses to overwrite an existing version regardless.
       - name: Check the release tag matches package.json
+        if: github.event_name == 'release'
         run: |
           tag="${GITHUB_REF_NAME#v}"
           pkg="$(node -p "require('./package.json').version")"
